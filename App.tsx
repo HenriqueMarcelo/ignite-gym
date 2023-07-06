@@ -9,8 +9,7 @@ import { StatusBar } from 'expo-status-bar'
 import { NativeBaseProvider } from 'native-base'
 import { Loading } from '@components/Loading'
 import { THEME } from './src/theme'
-import { SignIn } from '@screens/SignIn'
-import { SignUp } from '@screens/SignUp'
+import { Routes } from '@routes/index'
 
 LogBox.ignoreLogs([
   'In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.',
@@ -19,12 +18,10 @@ LogBox.ignoreLogs([
 export default function App() {
   const [frontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold })
 
-  if (frontsLoaded) {
-    return (
-      <NativeBaseProvider theme={THEME}>
-        <StatusBar style="light" />
-        {frontsLoaded ? <SignUp /> : <Loading />}
-      </NativeBaseProvider>
-    )
-  }
+  return (
+    <NativeBaseProvider theme={THEME}>
+      <StatusBar style="light" />
+      {frontsLoaded ? <Routes /> : <Loading />}
+    </NativeBaseProvider>
+  )
 }
