@@ -4,6 +4,7 @@ import {
   Roboto_400Regular,
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto'
+
 import { StatusBar } from 'expo-status-bar'
 import { NativeBaseProvider } from 'native-base'
 import { Loading } from '@components/Loading'
@@ -15,12 +16,14 @@ LogBox.ignoreLogs([
 ])
 
 export default function App() {
-  const [frontsLoaded] = useFonts([Roboto_400Regular, Roboto_700Bold])
+  const [frontsLoaded] = useFonts({ Roboto_400Regular, Roboto_700Bold })
 
-  return (
-    <NativeBaseProvider theme={THEME}>
-      <StatusBar style="light" />
-      {frontsLoaded ? <SignIn /> : <Loading />}
-    </NativeBaseProvider>
-  )
+  if (frontsLoaded) {
+    return (
+      <NativeBaseProvider theme={THEME}>
+        <StatusBar style="light" />
+        {frontsLoaded ? <SignIn /> : <Loading />}
+      </NativeBaseProvider>
+    )
+  }
 }
