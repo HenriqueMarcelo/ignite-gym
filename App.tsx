@@ -1,25 +1,25 @@
-import { Text, View } from 'react-native'
+import { LogBox } from 'react-native'
 import {
   useFonts,
   Roboto_400Regular,
   Roboto_700Bold,
 } from '@expo-google-fonts/roboto'
 import { StatusBar } from 'expo-status-bar'
+import { NativeBaseProvider, View } from 'native-base'
+import { Loading } from '@components/Loading'
+import { THEME } from './src/theme'
+
+LogBox.ignoreLogs([
+  'In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.',
+])
 
 export default function App() {
   const [frontsLoaded] = useFonts([Roboto_400Regular, Roboto_700Bold])
 
   return (
-    <View
-      style={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
-        backgroundColor: '#202024',
-      }}
-    >
-      {frontsLoaded ? <Text>Hello World!</Text> : <View />}
+    <NativeBaseProvider theme={THEME}>
       <StatusBar style="light" />
-    </View>
+      {frontsLoaded ? <View /> : <Loading />}
+    </NativeBaseProvider>
   )
 }
