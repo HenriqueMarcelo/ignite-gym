@@ -2,9 +2,10 @@ import { IButtonProps, Text, Button as ButtonNativeBase } from 'native-base'
 
 type Props = IButtonProps & {
   title: string
+  variant?: 'solid' | 'outline'
 }
 
-export function Button({ title, variant, ...rest }: Props) {
+export function Button({ title, variant = 'solid', ...rest }: Props) {
   return (
     <ButtonNativeBase
       w="full"
