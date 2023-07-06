@@ -10,6 +10,7 @@ import { NativeBaseProvider } from 'native-base'
 import { Loading } from '@components/Loading'
 import { THEME } from './src/theme'
 import { SignIn } from '@screens/SignIn'
+import { SignUp } from '@screens/SignUp'
 
 LogBox.ignoreLogs([
   'In React 18, SSRProvider is not necessary and is a noop. You can remove it from your app.',
@@ -22,7 +23,7 @@ export default function App() {
     return (
       <NativeBaseProvider theme={THEME}>
         <StatusBar style="light" />
-        {frontsLoaded ? <SignIn /> : <Loading />}
+        {frontsLoaded ? <SignUp /> : <Loading />}
       </NativeBaseProvider>
     )
   }
