@@ -11,12 +11,41 @@ import {
   Heading,
 } from 'native-base'
 import { useState } from 'react'
+import * as ImagePicker from 'expo-image-picker'
 import { TouchableOpacity } from 'react-native'
 
 const PHOTO_SIZE = 33
 
 export function Profile() {
-  const [photoIsLoadinng, _setPhotoIsLoading] = useState(true)
+  const [photoIsLoadinng, setPhotoIsLoading] = useState(false)
+  const [userPhoto, setUserPhoto] = useState(
+    'https://github.com/HenriqueMarcelo.png',
+  )
+
+  async function handleUserPhotoSelect() {
+    try {
+      setPhotoIsLoading(true)
+      const photoSelected = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+        aspect: [4, 4],
+        allowsEditing: true,
+      })
+
+      if (photoSelected.canceled) {
+        setPhotoIsLoading(false)
+        return
+      }
+
+      if (photoSelected.assets[0].uri) {
+        setUserPhoto(photoSelected.assets[0].uri)
+      }
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setPhotoIsLoading(false)
+    }
+  }
 
   return (
     <VStack flex={1}>
@@ -32,13 +61,9 @@ export function Profile() {
               endColor="gray.400"
             />
           ) : (
-            <UserPhoto
-              source={{ uri: 'https://github.com/HenriqueMarcelo.png' }}
-              alt=""
-              size={PHOTO_SIZE}
-            />
+            <UserPhoto source={{ uri: userPhoto }} alt="" size={PHOTO_SIZE} />
           )}
-          <TouchableOpacity>
+          <TouchableOpacity onPress={handleUserPhotoSelect}>
             <Text
               color="green.600"
               fontWeight={'bold'}
