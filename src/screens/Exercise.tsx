@@ -34,7 +34,12 @@ export function Exercise() {
           justifyContent={'space-between'}
           alignItems={'center'}
         >
-          <Heading color="gray.100" font-size={'lg'} flexShrink={1}>
+          <Heading
+            color="gray.100"
+            font-size={'lg'}
+            fontFamily="heading"
+            flexShrink={1}
+          >
             Puxada frontal
           </Heading>
           <HStack alignItems={'center'}>
