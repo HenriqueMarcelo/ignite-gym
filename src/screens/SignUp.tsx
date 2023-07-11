@@ -16,7 +16,11 @@ type FormDataProps = {
 export function SignUp() {
   const navigation = useNavigation()
 
-  const { handleSubmit, control } = useForm<FormDataProps>()
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<FormDataProps>()
 
   function handleGoBack() {
     navigation.goBack()
@@ -58,18 +62,34 @@ export function SignUp() {
           <Controller
             control={control}
             name="name"
+            rules={{
+              required: 'Informe o nome.',
+            }}
             render={({ field: { onChange, value } }) => (
-              <Input placeholder="Nome" onChangeText={onChange} value={value} />
+              <Input
+                placeholder="Nome"
+                errorMessage={errors.name?.message}
+                onChangeText={onChange}
+                value={value}
+              />
             )}
           />
 
           <Controller
             control={control}
             name="email"
+            rules={{
+              required: 'Informe o e-mail.',
+              pattern: {
+                value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                message: 'E-mail inválido',
+              },
+            }}
             render={({ field: { onChange, value } }) => (
               <Input
                 placeholder="E-mail"
                 keyboardType="email-address"
+                errorMessage={errors.email?.message}
                 autoCapitalize="none"
                 onChangeText={onChange}
                 value={value}
@@ -85,8 +105,10 @@ export function SignUp() {
                 placeholder="Senha"
                 secureTextEntry
                 autoCapitalize="none"
+                errorMessage={errors.password?.message}
                 onChangeText={onChange}
                 value={value}
+                isInvalid
               />
             )}
           />
@@ -99,6 +121,7 @@ export function SignUp() {
                 placeholder="Confirme a Senha"
                 secureTextEntry
                 autoCapitalize="none"
+                errorMessage={errors.password_confirm?.message}
                 onChangeText={onChange}
                 value={value}
                 onSubmitEditing={handleSubmit(handleSignUp)}
