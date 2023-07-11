@@ -39,10 +39,6 @@ export function SignUp() {
     resolver: yupResolver(signUpSchema),
   })
 
-  function handleGoBack() {
-    navigation.goBack()
-  }
-
   function handleSignUp({
     name,
     email,
@@ -50,6 +46,10 @@ export function SignUp() {
     password_confirm,
   }: FormDataProps) {
     console.log(name, email, password, password_confirm)
+  }
+
+  function handleGoBack() {
+    navigation.goBack()
   }
 
   return (

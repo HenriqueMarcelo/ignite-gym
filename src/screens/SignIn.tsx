@@ -92,6 +92,8 @@ export function SignIn() {
                 errorMessage={errors.password?.message}
                 onChangeText={onChange}
                 value={value}
+                onSubmitEditing={handleSubmit(handleSignUp)}
+                returnKeyType="send"
               />
             )}
           />

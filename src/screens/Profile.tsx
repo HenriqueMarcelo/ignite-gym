@@ -17,6 +17,32 @@ import { TouchableOpacity } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 
+import { useForm, Controller } from 'react-hook-form'
+import * as yup from 'yup'
+import { yupResolver } from '@hookform/resolvers/yup'
+
+type FormDataProps = {
+  name: string
+  // email: string
+  old_password: string
+  password: string
+  password_confirm: string
+}
+
+const signUpSchema = yup.object({
+  name: yup.string().required('Informe o nome.'),
+  // email: yup.string().required('Informe o e-mail.').email('E-mail inválido.'),
+  old_password: yup.string().required('Informe a antiga senha.'),
+  password: yup
+    .string()
+    .required('Informe a senha.')
+    .min(6, 'A senha deve ter pelo menos 6 dígitos.'),
+  password_confirm: yup
+    .string()
+    .required('Confirme a senha.')
+    .oneOf([yup.ref('password')], 'A confirmação da senha não confere.'),
+})
+
 const PHOTO_SIZE = 33
 const MAX_PHOTO_SIZE = 2
 
@@ -27,6 +53,23 @@ export function Profile() {
   )
 
   const toast = useToast()
+
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<FormDataProps>({
+    resolver: yupResolver(signUpSchema),
+  })
+
+  function handleSignUp({
+    name,
+    // email,
+    password,
+    password_confirm,
+  }: FormDataProps) {
+    console.log(name, password, password_confirm)
+  }
 
   async function handleUserPhotoSelect() {
     try {
@@ -91,7 +134,20 @@ export function Profile() {
             </Text>
           </TouchableOpacity>
 
-          <Input placeholder="Nome" bg="gray.600" />
+          <Controller
+            control={control}
+            name="name"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Nome"
+                bg="gray.600"
+                errorMessage={errors.name?.message}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+
           <Input
             placeholder="E-mail"
             value="mhmsn@hotmail.com"
@@ -109,15 +165,62 @@ export function Profile() {
           >
             Alterar senha
           </Heading>
-          <Input placeholder="Senha antiga" secureTextEntry bg="gray.500" />
-          <Input placeholder="Nova senha" secureTextEntry bg="gray.500" />
-          <Input
-            placeholder="Confirme a nova senha"
-            secureTextEntry
-            bg="gray.500"
+
+          <Controller
+            control={control}
+            name="old_password"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Senha antiga"
+                bg="gray.500"
+                secureTextEntry
+                autoCapitalize="none"
+                errorMessage={errors.old_password?.message}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
           />
 
-          <Button title="Atualizar" mt={5} />
+          <Controller
+            control={control}
+            name="password"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Senha"
+                bg="gray.500"
+                secureTextEntry
+                autoCapitalize="none"
+                errorMessage={errors.password?.message}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
+          />
+
+          <Controller
+            control={control}
+            name="password_confirm"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="Confirme a Senha"
+                bg="gray.500"
+                secureTextEntry
+                autoCapitalize="none"
+                errorMessage={errors.password_confirm?.message}
+                onChangeText={onChange}
+                value={value}
+                onSubmitEditing={handleSubmit(handleSignUp)}
+                returnKeyType="send"
+              />
+            )}
+          />
+
+          <Button
+            title="Atualizar"
+            mt={5}
+            onPress={handleSubmit(handleSignUp)}
+          />
         </Center>
       </ScrollView>
     </VStack>
