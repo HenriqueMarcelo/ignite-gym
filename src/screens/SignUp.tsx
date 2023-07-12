@@ -16,7 +16,6 @@ import { useForm, Controller } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { api } from '@services/api'
-import axios from 'axios'
 import { AppError } from '@utils/AppError'
 
 type FormDataProps = {
