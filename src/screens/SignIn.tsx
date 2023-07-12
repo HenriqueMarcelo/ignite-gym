@@ -8,6 +8,7 @@ import { AuthNavigatorRoutesProps } from '@routes/auth.routes'
 import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import { useAuth } from '@hooks/useAuth'
 
 type FormDataProps = {
   email: string
@@ -24,6 +25,7 @@ const signUpSchema = yup.object({
 
 export function SignIn() {
   const navigation = useNavigation<AuthNavigatorRoutesProps>()
+  const { signIn } = useAuth()
 
   const {
     control,
@@ -34,7 +36,7 @@ export function SignIn() {
   })
 
   function handleSignUp({ email, password }: FormDataProps) {
-    console.log(email, password)
+    signIn(email, password)
   }
 
   function handleNewAccount() {
