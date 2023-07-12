@@ -6,6 +6,7 @@ import { ReactNode, createContext, useEffect, useState } from 'react'
 export type AuthContextDataProps = {
   user: UserDTO
   signIn: (email: string, password: string) => Promise<void>
+  isLoadingUserStorageData: boolean
 }
 
 type AuthContextProviderProps = {
@@ -21,6 +22,7 @@ export const AuthContext = createContext<AuthContextDataProps>(
 export function AuthContextProvider({ children }: AuthContextProviderProps) {
   // Criando um estado
   const [user, setUser] = useState({} as UserDTO)
+  const [isLoadingUserStorageData, setIsLoadingUserStorageData] = useState(true)
 
   // Criando uma função para ser compartilhada no contexto
   async function signIn(email: string, password: string) {
@@ -33,10 +35,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }
 
   async function loadUserData() {
-    const userLogged = await storageUserGet()
+    try {
+      const userLogged = await storageUserGet()
 
-    if (userLogged) {
-      setUser(userLogged)
+      if (userLogged) {
+        setUser(userLogged)
+      }
+    } finally {
+      setIsLoadingUserStorageData(false)
     }
   }
 
@@ -45,7 +51,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ user, signIn }}>
+    <AuthContext.Provider value={{ user, signIn, isLoadingUserStorageData }}>
       {children}
     </AuthContext.Provider>
   )
