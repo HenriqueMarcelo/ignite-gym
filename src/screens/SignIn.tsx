@@ -35,8 +35,8 @@ export function SignIn() {
     resolver: yupResolver(signUpSchema),
   })
 
-  function handleSignUp({ email, password }: FormDataProps) {
-    signIn(email, password)
+  async function handleSignUp({ email, password }: FormDataProps) {
+    await signIn(email, password)
   }
 
   function handleNewAccount() {
