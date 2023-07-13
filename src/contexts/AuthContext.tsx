@@ -2,6 +2,7 @@ import { UserDTO } from '@dtos/userDTO'
 import { api } from '@services/api'
 import {
   storageAuthTokenGet,
+  storageAuthTokenRemove,
   storageAuthTokenSave,
 } from '@storage/storageAuthToken'
 import {
@@ -9,7 +10,13 @@ import {
   storageUserRemove,
   storageUserSave,
 } from '@storage/storageUser'
-import { ReactNode, createContext, useEffect, useState } from 'react'
+import {
+  ReactNode,
+  createContext,
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
 
 export type AuthContextDataProps = {
   user: UserDTO
@@ -34,7 +41,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [isLoadingUserStorageData, setIsLoadingUserStorageData] = useState(true)
 
   // Criando uma funções para ser compartilhada no contexto
-  async function userAndTokenUpdate(userData: UserDTO, token: string) {
+  function userAndTokenUpdate(userData: UserDTO, token: string) {
     api.defaults.headers.common.Authorization = `Bearer ${token}`
 
     setUser(userData)
@@ -71,14 +78,16 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   async function signOut() {
     try {
       setIsLoadingUserStorageData(true)
+
       setUser({} as UserDTO)
       await storageUserRemove()
+      await storageAuthTokenRemove()
     } finally {
       setIsLoadingUserStorageData(false)
     }
   }
 
-  async function loadUserData() {
+  const loadUserData = useCallback(async function loadUserData() {
     try {
       setIsLoadingUserStorageData(true)
 
@@ -91,11 +100,11 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     } finally {
       setIsLoadingUserStorageData(false)
     }
-  }
+  }, [])
 
   useEffect(() => {
     loadUserData()
-  }, [])
+  }, [loadUserData])
 
   return (
     <AuthContext.Provider
