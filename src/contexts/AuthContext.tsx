@@ -1,6 +1,10 @@
 import { UserDTO } from '@dtos/userDTO'
 import { api } from '@services/api'
 import {
+  storageAuthTokenGet,
+  storageAuthTokenSave,
+} from '@storage/storageAuthToken'
+import {
   storageUserGet,
   storageUserRemove,
   storageUserSave,
@@ -30,12 +34,37 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   const [isLoadingUserStorageData, setIsLoadingUserStorageData] = useState(true)
 
   // Criando uma funções para ser compartilhada no contexto
+  async function userAndTokenUpdate(userData: UserDTO, token: string) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`
+
+    setUser(userData)
+  }
+
+  async function storageUserAndtokenSave(userData: UserDTO, token: string) {
+    try {
+      setIsLoadingUserStorageData(true)
+
+      await storageUserSave(userData)
+      await storageAuthTokenSave(token)
+    } finally {
+      setIsLoadingUserStorageData(false)
+    }
+  }
+
   async function signIn(email: string, password: string) {
     const { data } = await api.post('/sessions', { email, password })
 
-    if (data.user) {
-      setUser(data.user)
-      storageUserSave(data.user)
+    if (data.user && data.token) {
+      try {
+        setIsLoadingUserStorageData(true)
+
+        await storageUserAndtokenSave(data.user, data.token)
+        setIsLoadingUserStorageData(true)
+
+        userAndTokenUpdate(data.user, data.token)
+      } finally {
+        setIsLoadingUserStorageData(false)
+      }
     }
   }
 
@@ -51,10 +80,13 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
 
   async function loadUserData() {
     try {
-      const userLogged = await storageUserGet()
+      setIsLoadingUserStorageData(true)
 
-      if (userLogged) {
-        setUser(userLogged)
+      const userLogged = await storageUserGet()
+      const authToken = await storageAuthTokenGet()
+
+      if (userLogged && authToken) {
+        userAndTokenUpdate(userLogged, authToken)
       }
     } finally {
       setIsLoadingUserStorageData(false)
