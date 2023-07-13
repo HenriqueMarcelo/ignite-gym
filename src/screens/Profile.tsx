@@ -20,27 +20,38 @@ import * as FileSystem from 'expo-file-system'
 import { useForm, Controller } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { useAuth } from '@hooks/useAuth'
 
 type FormDataProps = {
   name: string
-  // email: string
+  email: string
   old_password: string
   password: string
   password_confirm: string
 }
 
-const signUpSchema = yup.object({
+const profileSchema = yup.object({
   name: yup.string().required('Informe o nome.'),
-  // email: yup.string().required('Informe o e-mail.').email('E-mail inválido.'),
-  old_password: yup.string().required('Informe a antiga senha.'),
+  email: yup.string().nullable(),
+  old_password: yup.string().nullable(),
   password: yup
     .string()
-    .required('Informe a senha.')
-    .min(6, 'A senha deve ter pelo menos 6 dígitos.'),
+    .min(6, 'A senha deve ter pelo menos 6 dígitos.')
+    .nullable()
+    .transform((value) => value || null),
   password_confirm: yup
     .string()
-    .required('Confirme a senha.')
-    .oneOf([yup.ref('password')], 'A confirmação da senha não confere.'),
+    .nullable()
+    .transform((value) => value || null)
+    .oneOf([yup.ref('password')], 'As senhas devem ser iguais.')
+    .when('password', {
+      is: (Field: any) => Field,
+      then: (schema) =>
+        schema
+          .nullable()
+          .required('Informe a confirmação da senha.')
+          .transform((value) => value || null),
+    }),
 })
 
 const PHOTO_SIZE = 33
@@ -53,22 +64,28 @@ export function Profile() {
   )
 
   const toast = useToast()
+  const { user } = useAuth()
 
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormDataProps>({
-    resolver: yupResolver(signUpSchema),
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+    },
+    resolver: yupResolver(profileSchema),
   })
 
-  function handleSignUp({
+  function handleProfileUpdate({
     name,
-    // email,
+    email,
+    old_password,
     password,
     password_confirm,
   }: FormDataProps) {
-    console.log(name, password, password_confirm)
+    console.log(name, email, old_password, password, password_confirm)
   }
 
   async function handleUserPhotoSelect() {
@@ -148,11 +165,19 @@ export function Profile() {
             )}
           />
 
-          <Input
-            placeholder="E-mail"
-            value="mhmsn@hotmail.com"
-            bg="gray.600"
-            isDisabled
+          <Controller
+            control={control}
+            name="email"
+            render={({ field: { onChange, value } }) => (
+              <Input
+                placeholder="E-mail"
+                bg="gray.600"
+                isDisabled
+                errorMessage={errors.email?.message}
+                onChangeText={onChange}
+                value={value}
+              />
+            )}
           />
 
           <Heading
@@ -210,7 +235,7 @@ export function Profile() {
                 errorMessage={errors.password_confirm?.message}
                 onChangeText={onChange}
                 value={value}
-                onSubmitEditing={handleSubmit(handleSignUp)}
+                onSubmitEditing={handleSubmit(handleProfileUpdate)}
                 returnKeyType="send"
               />
             )}
@@ -219,7 +244,7 @@ export function Profile() {
           <Button
             title="Atualizar"
             mt={5}
-            onPress={handleSubmit(handleSignUp)}
+            onPress={handleSubmit(handleProfileUpdate)}
           />
         </Center>
       </ScrollView>
