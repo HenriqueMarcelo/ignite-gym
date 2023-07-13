@@ -21,6 +21,8 @@ import { useForm, Controller } from 'react-hook-form'
 import * as yup from 'yup'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useAuth } from '@hooks/useAuth'
+import { api } from '@services/api'
+import { AppError } from '@utils/AppError'
 
 type FormDataProps = {
   name: string
@@ -58,6 +60,7 @@ const PHOTO_SIZE = 33
 const MAX_PHOTO_SIZE = 2
 
 export function Profile() {
+  const [isLoading, setIsLoading] = useState(false)
   const [photoIsLoadinng, setPhotoIsLoading] = useState(false)
   const [userPhoto, setUserPhoto] = useState(
     'https://github.com/HenriqueMarcelo.png',
@@ -78,13 +81,41 @@ export function Profile() {
     resolver: yupResolver(profileSchema),
   })
 
-  function handleProfileUpdate({
+  async function handleProfileUpdate({
     name,
     email,
     old_password,
     password,
     password_confirm,
   }: FormDataProps) {
+    try {
+      setIsLoading(true)
+
+      await api.put('/users', {
+        name,
+        password,
+        old_password,
+      })
+
+      toast.show({
+        title: 'Perfil, atualizado com sucesso!',
+        placement: 'top',
+        bgColor: 'green.500',
+      })
+    } catch (error) {
+      const isAppError = error instanceof AppError
+      const title = isAppError
+        ? error.message
+        : 'Não foi possível atualizar os dados. Tente novamente mais tarde.'
+
+      toast.show({
+        title,
+        placement: 'top',
+        bgColor: 'red.500',
+      })
+    } finally {
+      setIsLoading(false)
+    }
     console.log(name, email, old_password, password, password_confirm)
   }
 
@@ -245,6 +276,7 @@ export function Profile() {
             title="Atualizar"
             mt={5}
             onPress={handleSubmit(handleProfileUpdate)}
+            isLoading={isLoading}
           />
         </Center>
       </ScrollView>
