@@ -12,7 +12,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 export function Home() {
   const [isLoading, setIsLoading] = useState(true)
-  const [groupSelected, setGroupSelected] = useState('costa')
+  const [groupSelected, setGroupSelected] = useState('')
   const [groups, setGroups] = useState<string[]>([])
   const [exercises, setExercises] = useState<ExerciseDTO[]>([])
 
@@ -29,6 +29,9 @@ export function Home() {
     try {
       const response = await api.get('/groups')
       setGroups(response.data)
+      if (response.data[0]) {
+        setGroupSelected(response.data[0])
+      }
     } catch (error) {
       const isAppError = error instanceof AppError
       const title = isAppError
