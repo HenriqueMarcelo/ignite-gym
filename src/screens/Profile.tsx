@@ -62,7 +62,7 @@ const MAX_PHOTO_SIZE = 2
 export function Profile() {
   const [isLoading, setIsLoading] = useState(false)
   const [photoIsLoadinng, setPhotoIsLoading] = useState(false)
-  const [userPhoto, setUserPhoto] = useState(
+  const [userPhoto, _setUserPhoto] = useState(
     'https://github.com/HenriqueMarcelo.png',
   )
 
@@ -147,7 +147,28 @@ export function Profile() {
             bgColor: 'red.500',
           })
         }
-        setUserPhoto(photoSelected.assets[0].uri)
+
+        const fileExtension = photoSelected.assets[0].uri.split('.').pop()
+        const photoFile = {
+          name: `${user.name}.${fileExtension}`.toLocaleLowerCase(),
+          uri: photoSelected.assets[0].uri,
+          type: `${photoSelected.assets[0].type}/${fileExtension}`,
+        } as any
+
+        const userPhotoUploadForm = new FormData()
+        userPhotoUploadForm.append('avatar', photoFile)
+
+        await api.patch('/users/avatar', userPhotoUploadForm, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
+        toast.show({
+          title: 'Foto atualizada!',
+          placement: 'top',
+          bgColor: 'green.500',
+        })
       }
     } catch (error) {
       console.log(error)
