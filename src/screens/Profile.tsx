@@ -26,10 +26,10 @@ import { AppError } from '@utils/AppError'
 
 type FormDataProps = {
   name: string
-  email: string
-  old_password: string
-  password: string
-  password_confirm: string
+  email: string | null | undefined
+  old_password: string | null | undefined
+  password: string | null | undefined
+  password_confirm: string | null | undefined
 }
 
 const profileSchema = yup.object({
@@ -83,10 +83,8 @@ export function Profile() {
 
   async function handleProfileUpdate({
     name,
-    email,
     old_password,
     password,
-    password_confirm,
   }: FormDataProps) {
     try {
       setIsLoading(true)
@@ -121,7 +119,6 @@ export function Profile() {
     } finally {
       setIsLoading(false)
     }
-    console.log(name, email, old_password, password, password_confirm)
   }
 
   async function handleUserPhotoSelect() {
@@ -211,7 +208,7 @@ export function Profile() {
                 isDisabled
                 errorMessage={errors.email?.message}
                 onChangeText={onChange}
-                value={value}
+                value={value as string | undefined}
               />
             )}
           />
@@ -238,7 +235,7 @@ export function Profile() {
                 autoCapitalize="none"
                 errorMessage={errors.old_password?.message}
                 onChangeText={onChange}
-                value={value}
+                value={value as string | undefined}
               />
             )}
           />
@@ -254,7 +251,7 @@ export function Profile() {
                 autoCapitalize="none"
                 errorMessage={errors.password?.message}
                 onChangeText={onChange}
-                value={value}
+                value={value as string | undefined}
               />
             )}
           />
@@ -270,7 +267,7 @@ export function Profile() {
                 autoCapitalize="none"
                 errorMessage={errors.password_confirm?.message}
                 onChangeText={onChange}
-                value={value}
+                value={value as string | undefined}
                 onSubmitEditing={handleSubmit(handleProfileUpdate)}
                 returnKeyType="send"
               />
