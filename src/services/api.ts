@@ -66,7 +66,25 @@ api.registerInterceptTokenManager = (signOut) => {
                 refresh_token,
               })
               await storageAuthTokenSave(data.token, data.refresh_token)
-              console.log('TOKEN ->', data)
+
+              if (originalRequestConfig.data) {
+                originalRequestConfig.data = JSON.parse(
+                  originalRequestConfig.data,
+                )
+
+                originalRequestConfig.headers = {
+                  Authorization: `Bearer ${data.token}`,
+                }
+                api.defaults.headers.common.Authorization = `Bearer ${data.token}`
+
+                failedQueue.forEach((request) => {
+                  request.onSuccess(data.token)
+                })
+
+                console.log('Token Atualizado!')
+
+                resolve(api(originalRequestConfig))
+              }
             } catch (error: any) {
               failedQueue.forEach((request) => {
                 request.onFailure(error)
