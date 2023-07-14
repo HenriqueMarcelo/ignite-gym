@@ -76,6 +76,7 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   async function signOut() {
     try {
       setIsLoadingUserStorageData(true)
@@ -111,6 +112,14 @@ export function AuthContextProvider({ children }: AuthContextProviderProps) {
   useEffect(() => {
     loadUserData()
   }, [loadUserData])
+
+  useEffect(() => {
+    const subscribe = api.registerInterceptTokenManager(signOut)
+
+    return () => {
+      subscribe()
+    }
+  }, [signOut])
 
   return (
     <AuthContext.Provider
