@@ -1,8 +1,16 @@
-import { storageAuthTokenGet } from '@storage/storageAuthToken'
+import {
+  storageAuthTokenGet,
+  storageAuthTokenSave,
+} from '@storage/storageAuthToken'
 import { AppError } from '@utils/AppError'
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosError, AxiosInstance } from 'axios'
 
 type SignOut = () => void
+
+type PromiseType = {
+  onSuccess: (token: string) => void
+  onFailure: (error: AxiosError) => void
+}
 
 type APIInstanceProps = AxiosInstance & {
   registerInterceptTokenManager: (signOut: SignOut) => () => void
@@ -11,6 +19,9 @@ type APIInstanceProps = AxiosInstance & {
 const api = axios.create({
   baseURL: 'http://192.168.0.169:3333',
 }) as APIInstanceProps
+
+let failedQueue: PromiseType[] = []
+let isRefreshing = false
 
 api.registerInterceptTokenManager = (signOut) => {
   const interceptTokenManager = api.interceptors.response.use(
@@ -27,6 +38,47 @@ api.registerInterceptTokenManager = (signOut) => {
             signOut()
             return Promise.reject(requestError)
           }
+
+          const originalRequestConfig = requestError.config
+
+          if (isRefreshing) {
+            return new Promise((resolve, reject) => {
+              failedQueue.push({
+                onSuccess: (token) => {
+                  originalRequestConfig.headers = {
+                    Authorization: `Bearer ${token}`,
+                  }
+                  resolve(api(originalRequestConfig))
+                },
+                onFailure: (error) => {
+                  reject(error)
+                },
+              })
+            })
+          }
+
+          isRefreshing = true
+
+          // eslint-disable-next-line no-async-promise-executor
+          return new Promise(async (resolve, reject) => {
+            try {
+              const { data } = await api.post('/sessions/refresh-token', {
+                refresh_token,
+              })
+              await storageAuthTokenSave(data.token, data.refresh_token)
+              console.log('TOKEN ->', data)
+            } catch (error: any) {
+              failedQueue.forEach((request) => {
+                request.onFailure(error)
+              })
+
+              signOut()
+              reject(error)
+            } finally {
+              isRefreshing = false
+              failedQueue = []
+            }
+          })
         }
 
         signOut()
