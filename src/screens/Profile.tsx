@@ -24,6 +24,8 @@ import { useAuth } from '@hooks/useAuth'
 import { api } from '@services/api'
 import { AppError } from '@utils/AppError'
 
+import defaultUserPhotoImg from '@assets/userPhotoDefault.png'
+
 type FormDataProps = {
   name: string
   email: string | null | undefined
@@ -57,14 +59,11 @@ const profileSchema = yup.object({
 })
 
 const PHOTO_SIZE = 33
-const MAX_PHOTO_SIZE = 2
+const MAX_PHOTO_SIZE = 5
 
 export function Profile() {
   const [isLoading, setIsLoading] = useState(false)
   const [photoIsLoadinng, setPhotoIsLoading] = useState(false)
-  const [userPhoto, _setUserPhoto] = useState(
-    'https://github.com/HenriqueMarcelo.png',
-  )
 
   const toast = useToast()
   const { user, updateUserProfile } = useAuth()
@@ -158,11 +157,19 @@ export function Profile() {
         const userPhotoUploadForm = new FormData()
         userPhotoUploadForm.append('avatar', photoFile)
 
-        await api.patch('/users/avatar', userPhotoUploadForm, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
+        const avatarUpdatedResponse = await api.patch(
+          '/users/avatar',
+          userPhotoUploadForm,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
           },
-        })
+        )
+
+        const userUpdated = user
+        userUpdated.avatar = avatarUpdatedResponse.data.avatar
+        updateUserProfile(userUpdated)
 
         toast.show({
           title: 'Foto atualizada!',
@@ -191,7 +198,15 @@ export function Profile() {
               endColor="gray.400"
             />
           ) : (
-            <UserPhoto source={{ uri: userPhoto }} alt="" size={PHOTO_SIZE} />
+            <UserPhoto
+              source={
+                user.avatar
+                  ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                  : defaultUserPhotoImg
+              }
+              alt=""
+              size={PHOTO_SIZE}
+            />
           )}
           <TouchableOpacity onPress={handleUserPhotoSelect}>
             <Text
