@@ -1,0 +1,9 @@
+# Rocket Gym
+
+O projeto "Rocket Gym" foi desenvolvido como parte do curso Ignite de React Native da RocketSeat. Ele teve como objetivo aprimorar meus conhecimentos e aprender novos conceitos e tecnologias para o desenvolvimento de aplicativos utilizando React Native.
+
+Utilizei o NativeBase como uma Component Library, o que facilitou a criação de uma interface visualmente atraente e responsiva. Além disso, implementei a funcionalidade de login e cadastro utilizando uma estratégia de autenticação baseada em JWT (JSON Web Tokens), garantindo a segurança das informações dos usuários. Para isso, utilizei a context API para gerenciar o estado da autenticação e implementei a função de Refresh Token para manter a sessão ativa.
+
+A aplicação conta com telas de login, cadastro e perfil, permitindo que os usuários alterem seus dados de cadastro, incluindo a foto de perfil. Além disso, os usuários têm acesso a uma lista de exercícios separados por grupo muscular. Ao selecionar um exercício, eles podem marcá-lo como concluído e essa informação será exibida na página de histórico.
+
+Durante o desenvolvimento, utilizei Expo e TypeScript como base, o que proporcionou uma experiência de desenvolvimento ágil e uma maior segurança na tipagem do código. Também utilizei bibliotecas como React Hook Form para lidar com formulários e validação de dados, Axios para realizar requisições HTTP, e React Navigation para a navegação entre as telas, usando tanto a estratégia de stack (pilha) quanto a de bottom tabs (abas inferiores). Além disso, adotei práticas de escrita de código limpo e organizado utilizando ESLint.
